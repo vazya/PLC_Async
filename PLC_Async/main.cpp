@@ -94,6 +94,20 @@ int sum( int a, int b )
 	return a + b;
 }
 
+void wtf( int a = 0 )
+{
+	threadId();
+	int res = 0;
+	for( int i = 0; i < a; i++ ) {
+		for( int j = 0; j < a; j++ ) {
+			res += j - i;
+		}
+	}
+	res += 666;
+	std::cout << res << "wtf\n";
+	//return res;
+}
+
 void message( const std::string& msg )
 {
 	std::cout << msg << '\n';
@@ -160,12 +174,14 @@ void notFun()
 	CThreadPool threadPool( 4 );
 
 	//threadPool.runAsync( &threadId );
-	auto f0 = threadPool.runAsync2( &message, "wtf" );
+	auto f0 = threadPool.runAsync2( &wtf, 50000 );
 	auto f1 = threadPool.runAsync2( &trashFun );
 	auto f2 = threadPool.runAsync2( &trashFun );
+	auto f3 = threadPool.runAsync2( &message, "lol" );
 	f0.get();
 	f1.get();
 	f2.get();
+	f3.get();
 }
 
 void ass()
