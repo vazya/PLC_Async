@@ -81,7 +81,7 @@ void threadId()
 void trashFun()
 {
 	std::cout << "This thread id = " << std::this_thread::get_id() << "\n";
-	std::cout << "666 trashFun\n";
+	std::cout << "666trashFun\n";
 }
 
 int foo()
@@ -171,17 +171,27 @@ void fun()
 void notFun()
 {
 	std::cout << "MainThreadid = " << std::this_thread::get_id() << '\n';
-	CThreadPool threadPool( 4 );
+	CThreadPool threadPool( 1 );
 
-	//threadPool.runAsync( &threadId );
-	auto f0 = threadPool.runAsync2( &wtf, 50000 );
-	auto f1 = threadPool.runAsync2( &trashFun );
-	auto f2 = threadPool.runAsync2( &trashFun );
-	auto f3 = threadPool.runAsync2( &message, "lol" );
+	auto f0 = threadPool.runAsync2( false, &wtf, 1000 );
+	auto f1 = threadPool.runAsync2( false, &trashFun );
+	auto f2 = threadPool.runAsync2( false, &trashFun );
+	auto f3 = threadPool.runAsync2( false, &trashFun );
+	auto f4 = threadPool.runAsync2( false, &wtf, 1000 );
+	auto f5 = threadPool.runAsync2( false, &trashFun );
+	auto f6 = threadPool.runAsync2( false, &trashFun );
+	auto f7 = threadPool.runAsync2( false, &trashFun );
+	//auto f4 = threadPool.runAsync2( false, &message, "lol" );
 	f0.get();
 	f1.get();
 	f2.get();
 	f3.get();
+	f4.get();
+	f5.get();
+	f6.get();
+	f7.get();
+	//f4.get();
+	threadPool.WaitForFinishWork();
 }
 
 void ass()

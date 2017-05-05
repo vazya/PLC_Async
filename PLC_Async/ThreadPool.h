@@ -6,7 +6,7 @@ class CThreadPool {
 public:
 
 	CThreadPool( size_t num_of_threads = 1 );
-	~CThreadPool() {};
+	~CThreadPool();
 
 	template<class FN, class... ARGS>
 	void runAsync( FN fn, ARGS... args )
@@ -50,26 +50,46 @@ public:
 	}
 
 	template<class FN, class... ARGS>
-	std::shared_ptr<std::future<void>> runAsync2( FN fn, ARGS... args )
+	std::shared_ptr<std::future<void>> runAsync2( bool syncMode, FN fn, ARGS... args )
 	{
-		auto p = getFreeWorker();
-		auto f = std::make_shared<std::future<void>>( p->get_future() );
+		if( hasFreeWorker() && !syncMode ) {
+			int i = getFreeWorkerIndex();
+			setWorkerBusy( i );
+			auto p = workers[i];
+			//auto p = getFreeWorker();
+			//p->~promise();
+			//auto ff = p->get_future();
+			auto f = std::make_shared<std::future<void>>( std::move( p->get_future() ) );
 
-		std::function<void()> rfn = std::bind( fn, args... );
+			//auto f = std::make_shared<std::future<void>>( p->get_future() );
 
-		std::thread( [=]( std::shared_ptr<std::promise<void>> p ) {
+			std::function<void()> rfn = std::bind( fn, args... );
+
+			std::thread( [=]( std::shared_ptr<std::promise<void>> p, int i ) {
+				rfn();
+				setWorkerFree( i );
+				p->set_value();
+			}, p, i ).detach();
+			return f;
+		} else {
+			auto p = std::make_shared<std::promise<void>>();
+			auto f = std::make_shared<std::future<void>>( p->get_future() );
+			std::function<void()> rfn = std::bind( fn, args... );
 			rfn();
 			p->set_value();
-		}, p ).detach();
-
-		return f;
+			return f;
+		}
 	}
 
 	std::shared_ptr<std::promise<void>> GetFreeWorker();
-
+	void WaitForFinishWork( int timeout = 50000 );
 private:
 	std::shared_ptr<std::promise<void>> getFreeWorker();
-
+	int getFreeWorkerIndex();
+	bool hasFreeWorker();
+	void setWorkerBusy( int i );
+	void setWorkerFree( int i );
+	void waitForFinishWork( int timeout = 50000 );
 	std::vector<std::shared_ptr<std::promise<void>>> workers;
 	std::vector<bool> workersFree;
 };
