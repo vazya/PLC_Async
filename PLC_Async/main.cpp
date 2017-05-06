@@ -84,6 +84,24 @@ void trashFun()
 	std::cout << "666trashFun\n";
 }
 
+void trashFun5()
+{
+	std::cout << "This thread id = " << std::this_thread::get_id() << "\n";
+	std::cout << "555trashFun\n";
+}
+
+void trashFun4()
+{
+	std::cout << "This thread id = " << std::this_thread::get_id() << "\n";
+	std::cout << "444trashFun\n";
+}
+
+void trashFun7()
+{
+	std::cout << "This thread id = " << std::this_thread::get_id() << "\n";
+	std::cout << "777trashFun\n";
+}
+
 int foo()
 {
 	return 666;
@@ -173,15 +191,14 @@ void notFun()
 	std::cout << "MainThreadid = " << std::this_thread::get_id() << '\n';
 	CThreadPool threadPool( 1 );
 
-	auto f0 = threadPool.runAsync2( false, &wtf, 1000 );
-	auto f1 = threadPool.runAsync2( false, &trashFun );
-	auto f2 = threadPool.runAsync2( false, &trashFun );
-	auto f3 = threadPool.runAsync2( false, &trashFun );
-	auto f4 = threadPool.runAsync2( false, &wtf, 1000 );
-	auto f5 = threadPool.runAsync2( false, &trashFun );
-	auto f6 = threadPool.runAsync2( false, &trashFun );
-	auto f7 = threadPool.runAsync2( false, &trashFun );
-	//auto f4 = threadPool.runAsync2( false, &message, "lol" );
+	auto f0 = threadPool.runAsync4( false, &trashFun4 );
+	auto f1 = threadPool.runAsync4( false, &trashFun );
+	auto f2 = threadPool.runAsync4( false, &trashFun5 );
+	auto f3 = threadPool.runAsync4( false, &trashFun );
+	auto f4 = threadPool.runAsync4( false, &trashFun7 );
+	auto f5 = threadPool.runAsync4( false, &trashFun );
+	auto f6 = threadPool.runAsync4( false, &trashFun );
+	auto f7 = threadPool.runAsync4( false, &trashFun );
 	f0.get();
 	f1.get();
 	f2.get();
@@ -190,8 +207,7 @@ void notFun()
 	f5.get();
 	f6.get();
 	f7.get();
-	//f4.get();
-	threadPool.WaitForFinishWork();
+	threadPool.WaitForFinishWork4();
 }
 
 void ass()
@@ -217,7 +233,7 @@ int main()
 	//fun();
 
 	notFun();
-
+	print( "After notFun" );
 	//std_async();
 	system( "pause" );
 }
